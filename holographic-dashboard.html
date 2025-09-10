@@ -539,7 +539,8 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
-        /* Position labels relative to each nav item */
+
+        /* Position labels relative to each nav item - Fixed positioning */
         .nav-item:nth-child(2) .nav-label {
             top: -50px;
             left: 50%;
@@ -552,7 +553,7 @@
 
         .nav-item:nth-child(3) .nav-label {
             top: 50%;
-            right: -120px;
+            right: -140px;
             transform: translateY(-50%) scale(0.7);
         }
 
@@ -562,7 +563,7 @@
 
         .nav-item:nth-child(4) .nav-label {
             bottom: -20px;
-            right: -120px;
+            right: -140px;
             transform: scale(0.7);
         }
 
@@ -582,7 +583,7 @@
 
         .nav-item:nth-child(6) .nav-label {
             bottom: -20px;
-            left: -120px;
+            left: -140px;
             transform: scale(0.7);
         }
 
@@ -592,12 +593,39 @@
 
         .nav-item:nth-child(7) .nav-label {
             top: 50%;
-            left: -120px;
+            left: -140px;
             transform: translateY(-50%) scale(0.7);
         }
 
         .nav-item:nth-child(7):hover .nav-label {
             transform: translateY(-50%) scale(1);
+        }
+
+        /* Ensure labels don't go off screen */
+        .nav-label {
+            max-width: 150px;
+            word-wrap: break-word;
+        }
+
+        /* Logo scroll behavior */
+        .main-logo {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #0080ff, #00ff80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoGlow 4s ease-in-out infinite;
+            z-index: 1000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .main-logo.hidden {
+            transform: translateY(-100px);
+            opacity: 0;
         }
 
         .nav-item:nth-child(2) {
@@ -1719,24 +1747,41 @@
                             init3DScene();
                             createParticleSystem();
 
-                            // Animate ticker values
-                            setInterval(() => {
-                                const tickerValues = document.querySelectorAll('.ticker-value');
-                                tickerValues.forEach(ticker => {
-                                    const change = (Math.random() - 0.5) * 0.4;
-                                    const currentValue = parseFloat(ticker.textContent.replace(/[+%]/g, ''));
-                                    const newValue = currentValue + change;
+                            // Fetch live market data from backend and update dashboard
+                            fetch('http://localhost:8080/api/market')
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Update market grid
+                                    const marketGrid = document.querySelector('.market-grid');
+                                    if (marketGrid && Array.isArray(data.stocks)) {
+                                        marketGrid.innerHTML = '';
+                                        data.stocks.forEach(stock => {
+                                            const tickerDiv = document.createElement('div');
+                                            tickerDiv.className = 'market-ticker';
+                                            tickerDiv.innerHTML = `
+                                                <div class="ticker-symbol">${stock.symbol}</div>
+                                                <div class="ticker-value ${stock.change >= 0 ? 'profit' : 'loss'}">${stock.change >= 0 ? '+' : ''}${stock.change}%</div>
+                                                <div>${stock.price}</div>
+                                            `;
+                                            marketGrid.appendChild(tickerDiv);
+                                        });
+                                    }
 
-                                    // Add flip animation
-                                    ticker.style.transform = 'rotateX(180deg)';
-
-                                    setTimeout(() => {
-                                        ticker.textContent = `${newValue >= 0 ? '+' : ''}${newValue.toFixed(1)}%`;
-                                        ticker.className = `ticker-value ${newValue >= 0 ? 'profit' : newValue < -0.5 ? 'loss' : 'neutral'}`;
-                                        ticker.style.transform = 'rotateX(0deg)';
-                                    }, 200);
+                                    // Update ticker tape
+                                    const tickerContent = document.querySelector('.ticker-content');
+                                    if (tickerContent && Array.isArray(data.stocks)) {
+                                        tickerContent.innerHTML = '';
+                                        data.stocks.forEach(stock => {
+                                            const tickerItem = document.createElement('span');
+                                            tickerItem.className = 'ticker-item';
+                                            tickerItem.innerHTML = `${stock.symbol}: $${stock.price} ${stock.change >= 0 ? '↗' : '↘'} ${stock.change >= 0 ? '+' : ''}${stock.change}%`;
+                                            tickerContent.appendChild(tickerItem);
+                                        });
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Error fetching market data:', err);
                                 });
-                            }, 8000);
 
                             // Animate navigation center
                             const navCenter = document.querySelector('.nav-center');
@@ -1748,6 +1793,30 @@
                             }, 5000);
                         });
                     </script>
+// Logo scroll hide/show functionality
+let lastScrollTop = 0;
+let isScrollingDown = false;
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    const logo = document.querySelector('.main-logo');
+    if (logo) {
+        if (currentScroll > lastScrollTop && currentScroll > 100) {
+            // Scrolling down
+            if (!isScrollingDown) {
+                logo.classList.add('hidden');
+                isScrollingDown = true;
+            }
+        } else {
+            // Scrolling up
+            if (isScrollingDown) {
+                logo.classList.remove('hidden');
+                isScrollingDown = false;
+            }
+        }
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    }
+});
     </body>
     
     </html>
