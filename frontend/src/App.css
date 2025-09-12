@@ -843,63 +843,37 @@ body::after {
   padding-right: 10px;
 }
 
-.holding-card {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(0, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: all 0.4s ease;
-  cursor: pointer;
+/* Fix scrolling in Enhanced Holdings section */
+.enhanced-holdings .holdings-grid {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px;
 }
 
-.holding-card:hover {
-  transform: translateX(10px);
-  border-color: rgba(0, 255, 255, 0.5);
-  background: rgba(0, 255, 255, 0.05);
-  box-shadow: 0 5px 20px rgba(0, 255, 255, 0.1);
+/* Ensure the holdings grid has proper scrollable behavior */
+.enhanced-holdings {
+  max-height: 500px;
+  overflow: hidden;
 }
 
-.holding-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+/* Fix for webkit browsers */
+.enhanced-holdings .holdings-grid::-webkit-scrollbar {
+  width: 8px;
 }
 
-.holding-symbol {
-  font-weight: 700;
-  color: #00ffff;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
+.enhanced-holdings .holdings-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
 }
 
-.holding-quantity {
-  color: rgba(255, 255, 255, 0.7);
+.enhanced-holdings .holdings-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00ffff, #0080ff);
+  border-radius: 10px;
 }
 
-.holding-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.metric {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.pnl {
-  text-align: right;
-}
-
-.pnl.profit-glow {
-  color: #00ff00;
-}
-
-.pnl.loss-glow {
-  color: #ff4757;
+.enhanced-holdings .holdings-grid::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00dddd, #0066dd);
 }
 
 /* Ticker Tape */
